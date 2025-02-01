@@ -37,7 +37,7 @@ int main()
             if (cols ==( 2 * height)-1)
                 break;
         }
-        cout << endl;
+        std::cout << "\n";
     }
     return 0;
 }
