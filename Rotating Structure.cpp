@@ -173,7 +173,7 @@ int main()
     std::cout << "Which direction would you like to rotate the border and internal rectangles? (c for clockwise, a for anti-clockwise): ";
     std::cin >> direction;
 
-    // Rotate the entire matrix (including borders and internal rectangles)
+    // Rotate internal rectangles
     rotateInternalRectangles(arr, height, width, direction);
 
     // Output the matrix after the rotation
