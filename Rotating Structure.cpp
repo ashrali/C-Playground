@@ -50,9 +50,9 @@ void shiftBorderClockwise(char border[], int size)
     char temp = border[size - 1];
 
     // Shift all elements by 1 position to the right
-    for (int i = size - 1; i > 0; i--)
+    for (int num = size - 1; num > 0; num--)
     {
-        border[i] = border[i - 1];
+        border[num] = border[num - 1];
     }
 
     // Place the last element at the start
@@ -69,9 +69,9 @@ void shiftBorderAntiClockwise(char border[], int size)
     char temp = border[0];
 
     // Shift all elements by 1 position to the left
-    for (int i = 0; i < size - 1; i++)
+    for (int num = 0; num < size - 1; num++)
     {
-        border[i] = border[i + 1];
+        border[num] = border[num + 1];
     }
 
     // Place the first element at the end
@@ -149,9 +149,9 @@ int main()
 
     // 2D array (matrix)
     char **arr = new char *[height];
-    for (int i = 0; i < height; ++i)
+    for (int num = 0; num < height; ++num)
     {
-        arr[i] = new char[width];
+        arr[num] = new char[width];
     }
 
     // Input the elements of the 2D array
