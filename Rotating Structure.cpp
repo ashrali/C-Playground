@@ -105,7 +105,7 @@ void setBorder(char **arr, int height, int width, char border[], int size, int t
     }
 }
 
-// Rotate all internal rectangles (sub-arrays)
+// Rotate all internal rectangles
 void rotateInternalRectangles(char **arr, int height, int width, char direction)
 {
     int top = 0, left = 0, bottom = height - 1, right = width - 1;
@@ -147,7 +147,7 @@ int main()
     std::cout << "Enter width of rectangle: ";
     std::cin >> width;
 
-    // Dynamically allocate a 2D array (matrix)
+    // 2D array (matrix)
     char **arr = new char *[height];
     for (int i = 0; i < height; ++i)
     {
