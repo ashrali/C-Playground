@@ -7,7 +7,7 @@ class NormalUser
 {
 private:
     std::string name;
-    int accountNumber;
+    int accountNumber; 
     double balance;
 
 public:
