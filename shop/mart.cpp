@@ -1,6 +1,5 @@
 #include <iostream>
 #include <string>
-using namespace std;
 
 const int MAX_PRODUCTS = 100;
 
@@ -8,26 +7,46 @@ class Product
 {
 private:
     int id;
-    string name;
+    std::string name;
     double price;
     int quantity;
+    std::string type;
 
 public:
-    Product() : id(0), name(""), price(0.0), quantity(0) {}
-
-    Product(int productId, string productName, double productPrice, int productQuantity)
+    Product()
     {
-        id = productId;
-        name = productName;
-        price = productPrice;
-        quantity = productQuantity;
+        id = 0;
+        name = "";
+        price = 0.0;
+        quantity = 0;
+        type = "";
     }
 
-    // Getter methods
-    int getId() const { return id; }
-    string getName() const { return name; }
-    double getPrice() const { return price; }
-    int getQuantity() const { return quantity; }
+    Product(int productId, std::string productName, double productPrice, int productQuantity, std::string productType)
+    {
+        id = (productId), name = (productName), price = (productPrice), quantity = (productQuantity), type = (productType);
+    }
+
+    int getId() const
+    {
+        return id;
+    }
+    std::string getName() const
+    {
+        return name;
+    }
+    double getPrice() const
+    {
+        return price;
+    }
+    int getQuantity() const
+    {
+        return quantity;
+    }
+    std::string getType() const // Added getter for type
+    {
+        return type;
+    }
 
     void reduceQuantity(int amount)
     {
@@ -43,9 +62,14 @@ class Mart
 private:
     Product products[MAX_PRODUCTS];
     int productCount;
+    int lastProductId;
 
 public:
-    Mart() : productCount(0) {}
+    Mart()
+    {
+        productCount = 0;
+        lastProductId = 1;
+    }
 
     void addProduct(Product p)
     {
@@ -53,50 +77,57 @@ public:
         {
             products[productCount] = p;
             productCount++;
-            cout << "Product added successfully!\n";
+            lastProductId++; // Increment ID for next product
+            std::cout << "Product added successfully!\n";
         }
         else
         {
-            cout << "Error: Maximum product limit reached!\n";
+            std::cout << "Error: Maximum product limit reached!\n";
         }
+    }
+
+    int getNextProductId()
+    {
+        return lastProductId;
     }
 
     void displayProducts() const
     {
-        cout << "\nAvailable Products (" << productCount << "/" << MAX_PRODUCTS << "):\n";
-        cout << "----------------------------------------\n";
-        for (int i = 0; i < productCount; i++)
+        std::cout << "\nAvailable Products (" << productCount << "/" << MAX_PRODUCTS << "):\n";
+        std::cout << "----------------------------------------\n";
+        for (int product_num = 0; product_num < productCount; product_num++)
         {
-            cout << "ID: " << products[i].getId()
-                 << " | Name: " << products[i].getName()
-                 << " | Price: $" << products[i].getPrice()
-                 << " | Quantity: " << products[i].getQuantity() << endl;
+            std::cout << "Product Type: " << products[product_num].getType()
+                      << " | ID: " << products[product_num].getId()
+                      << " | Name: " << products[product_num].getName()
+                      << " | Price: $" << products[product_num].getPrice()
+                      << " | Quantity: " << products[product_num].getQuantity() << std::endl;
         }
-        cout << "----------------------------------------\n";
+        std::cout << "----------------------------------------\n";
     }
 
     void sellProduct(int productId, int quantity)
     {
-        for (int i = 0; i < productCount; i++)
+        for (int product_num = 0; product_num < productCount; product_num++)
         {
-            if (products[i].getId() == productId)
+            if (products[product_num].getId() == productId)
             {
-                if (products[i].getQuantity() >= quantity)
+                if (products[product_num].getQuantity() >= quantity)
                 {
-                    products[i].reduceQuantity(quantity);
-                    double total = products[i].getPrice() * quantity;
-                    cout << "\nSold " << quantity << " " << products[i].getName()
-                         << "(s). Total: $" << total << endl;
+                    products[product_num].reduceQuantity(quantity);
+                    double total = products[product_num].getPrice() * quantity;
+                    std::cout << "\nSold " << quantity << " " << products[product_num].getName()
+                              << "(s). Total: $" << total << std::endl;
                     return;
                 }
                 else
                 {
-                    cout << "\nError: Insufficient quantity available!\n";
+                    std::cout << "\nError: Insufficient quantity available!\n";
                     return;
                 }
             }
         }
-        cout << "\nError: Product not found!\n";
+        std::cout << "\nError: Product not found!\n";
     }
 };
 
@@ -107,33 +138,35 @@ int main()
 
     do
     {
-        cout << "\nMart Management System\n";
-        cout << "1. Add Product\n";
-        cout << "2. Display Products\n";
-        cout << "3. Sell Product\n";
-        cout << "4. Exit\n";
-        cout << "Enter your choice: ";
-        cin >> choice;
+        std::cout << "\nMart Management System\n";
+        std::cout << "1. Add Product\n";
+        std::cout << "2. Display Products\n";
+        std::cout << "3. Sell Product\n";
+        std::cout << "4. Exit\n";
+        std::cout << "Enter your choice: ";
+        std::cin >> choice;
 
         switch (choice)
         {
         case 1:
         {
-            int id, quantity;
-            string name;
+            int quantity;
+            std::string name, type;
             double price;
 
-            cout << "Enter product ID: ";
-            cin >> id;
-            cin.ignore(); // Clear input buffer
-            cout << "Enter product name: ";
-            getline(cin, name);
-            cout << "Enter product price: $";
-            cin >> price;
-            cout << "Enter product quantity: ";
-            cin >> quantity;
+            std::cout << "Enter product type: ";
+            std::cin.ignore();
+            std::getline(std::cin, type);
+            std::cout << "Enter product name: ";
+            std::getline(std::cin, name);
+            int id = mart.getNextProductId(); // Get the next product ID
+            std::cout << "Product ID: " << id << "\n";
+            std::cout << "Enter product price: $";
+            std::cin >> price;
+            std::cout << "Enter product quantity: ";
+            std::cin >> quantity;
 
-            Product newProduct(id, name, price, quantity);
+            Product newProduct(id, name, price, quantity, type);
             mart.addProduct(newProduct);
             break;
         }
@@ -143,18 +176,18 @@ int main()
         case 3:
         {
             int productId, quantity;
-            cout << "Enter product ID: ";
-            cin >> productId;
-            cout << "Enter quantity to sell: ";
-            cin >> quantity;
+            std::cout << "Enter product ID: ";
+            std::cin >> productId;
+            std::cout << "Enter quantity to sell: ";
+            std::cin >> quantity;
             mart.sellProduct(productId, quantity);
             break;
         }
         case 4:
-            cout << "Exiting program...\n";
+            std::cout << "Exiting program...\n";
             break;
         default:
-            cout << "Invalid choice! Please try again.\n";
+            std::cout << "Invalid choice! Please try again.\n";
         }
     } while (choice != 4);
 
