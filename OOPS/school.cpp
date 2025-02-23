@@ -6,7 +6,7 @@ int main()
     Teacher teacher;
     Principal principal;
     Student student;
-    initializeMarks(student);
+    initializeMarks(student); 
     admission_office admission;
     warden w;
     int choice;
