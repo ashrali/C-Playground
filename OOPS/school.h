@@ -1,3 +1,4 @@
+
 // User defined data type for Student
 typedef struct student
 {
@@ -57,18 +58,42 @@ private:
     std::string name;
     std::string father_name;
     std::string email;
-    int phone_number;
+    std::string phone_number;
     std::string address;
 
 public:
     void info();
     void display_info();
-    std::string getStudentName()
-    {
-        return name;
-    }
+    std::string getStudentName() { return name; }
 };
 
+class financial
+{
+private:
+    float tuitionFee;
+    float hostelFee;
+
+public:
+    financial() : tuitionFee(0), hostelFee(0) {}
+
+    void calculateTuition()
+    {
+        tuitionFee = 50000; // Example tuition fee
+    }
+
+    void calculateHostelFee()
+    {
+        hostelFee = 20000; // Example hostel fee
+    }
+
+    void display_info()
+    {
+        std::cout << "\nFinancial Details:\n";
+        std::cout << "Tuition Fee: " << tuitionFee << std::endl;
+        std::cout << "Hostel Fee: " << hostelFee << std::endl;
+        std::cout << "Total Fee Payable: " << (tuitionFee + hostelFee) << std::endl;
+    }
+};
 void admission_office::info()
 {
     std::cout << "Enter student's name : ";
