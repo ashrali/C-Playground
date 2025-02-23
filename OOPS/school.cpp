@@ -5,14 +5,14 @@ int main()
 {
     Teacher teacher;
     Principal principal;
+    financial finance;
     Student student;
-    initializeMarks(student); 
+    initializeMarks(student);
     admission_office admission;
     warden w;
     int choice;
     bool isEnrolled = false;
     std::string enrolledName;
-
     while (true)
     {
         std::cout << "\n1. Admission Office\n";
@@ -31,6 +31,7 @@ int main()
             enrolledName = admission.getStudentName();
             student.name = enrolledName;
             isEnrolled = true;
+            finance.calculateTuition(); // Calculate tuition fee on enrollment
             break;
         }
         case 2:
@@ -48,15 +49,18 @@ int main()
                 break;
             }
             w.output();
+            finance.calculateHostelFee(); // Add hostel fee after allocation
             break;
         }
         case 3:
         {
             int choice_2;
-            std::cout << "\n1. Teacher's domian\n";
+            std::cout << "\n1. Teacher's domain\n";
             std::cout << "2. Principal's domain\n";
             std::cout << "3. Student's Result\n";
-            std::cout << "4. Exit to main\n";
+            std::cout << "4. Financial Details\n";
+            std::cout << "5. Complaint \n";
+            std::cout << "6. Exit to main\n";
             std::cout << "Enter your choice: ";
             std::cin >> choice_2;
 
@@ -139,10 +143,50 @@ int main()
                 break;
             }
             case 4:
+                if (!isEnrolled)
+                {
+                    std::cout << "No student enrolled.\n";
+                    break;
+                }
+                finance.display_info();
                 break;
+            case 5:
+            {
+                if (!isEnrolled)
+                {
+                    std::cout << "No student enrolled.\n";
+                    break;
+                }
+
+                std::string enteredName;
+                std::cout << "Enter student's name: ";
+                std::cin.ignore(); // Clear any leftover input from previous reads
+                std::getline(std::cin, enteredName);
+
+                if (enteredName != enrolledName)
+                {
+                    std::cout << "Student not enrolled.\n";
+                    break;
+                }
+
+                std::string complaint;
+                std::cout << "Enter your Complaint: ";
+                std::getline(std::cin, complaint);
+
+                std::cout << "Your complaint has been recorded.\n";
+                break;
+            }
+
+            case 6:
+            {
+                break;
+            }
             default:
+            {
                 std::cout << "Invalid choice.\n";
             }
+            }
+
             break;
         }
         case 4:
