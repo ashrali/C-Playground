@@ -40,14 +40,25 @@ void printBoard()
 
 bool isSameColor(char piece1, char piece2)
 {
-    return ((piece1 >= 'A' && piece1 <= 'Z') && (piece2 >= 'A' && piece2 <= 'Z')) ||
-           ((piece1 >= 'a' && piece1 <= 'z') && (piece2 >= 'a' && piece2 <= 'z'));
+    if ((piece1 >= 'A' && piece1 <= 'Z') && (piece2 >= 'A' && piece2 <= 'Z'))
+        return true;
+    if ((piece1 >= 'a' && piece1 <= 'z') && (piece2 >= 'a' && piece2 <= 'z'))
+        return true;
+    return false;
 }
 
 bool isPathClear(int x1, int y1, int x2, int y2)
 {
-    int dx = (x2 > x1) - (x2 < x1);
-    int dy = (y2 > y1) - (y2 < y1);
+    int dx = 0;
+    int dy = 0;
+    if (x2 > x1)
+        dx = 1;
+    else if (x2 < x1)
+        dx = -1;
+    if (y2 > y1)
+        dy = 1;
+    else if (y2 < y1)
+        dy = -1;
 
     int x = x1 + dx, y = y1 + dy;
     while (x != x2 || y != y2)
@@ -62,42 +73,35 @@ bool isPathClear(int x1, int y1, int x2, int y2)
 
 bool isValidMove(int x1, int y1, int x2, int y2)
 {
-    if (x1 < 0 || x1 >= BOARD_SIZE || y1 < 0 || y1 >= BOARD_SIZE ||
-        x2 < 0 || x2 >= BOARD_SIZE || y2 < 0 || y2 >= BOARD_SIZE)
-    {
-        return false;
-    }
-    char piece = board[x1][y1];
-    if (piece == '.')
-        return false;
-    if (isSameColor(piece, board[x2][y2]))
+    if (isSameColor(board[x1][y1], board[x2][y2]))
         return false;
 
+    char piece = board[x1][y1];
     bool isWhite = (piece >= 'A' && piece <= 'Z');
-    if ((whiteTurn && !isWhite) || (!whiteTurn && isWhite))
-        return false;
+
+    int dx = x2 - x1;
+    int dy = y2 - y1;
+
+    if (dx < 0)
+        dx = -dx;
+    if (dy < 0)
+        dy = -dy;
 
     switch (piece)
     {
     case 'P':
     case 'p':
     {
-        int dir = -1;
-        if (!isWhite)
+        int dir;
+        if (isWhite)
+            dir = -1;
+        else
             dir = 1;
-        if (y1 == y2)
-        {
-            if (board[x2][y2] == '.' && x2 - x1 == dir)
-                return true;
-            if (x1 == 6 && isWhite && x2 - x1 == 2 * dir && board[x1 + dir][y1] == '.' && board[x2][y2] == '.')
-                return true;
-            if (x1 == 1 && !isWhite && x2 - x1 == 2 * dir && board[x1 + dir][y1] == '.' && board[x2][y2] == '.')
-                return true;
-        }
-        else if ((y2 - y1 == 1 || y1 - y2 == 1) && x2 - x1 == dir && board[x2][y2] != '.')
-        {
+
+        if (y1 == y2 && board[x2][y2] == '.' && (x2 - x1 == dir || (x1 == (isWhite ? 6 : 1) && x2 - x1 == 2 * dir)))
             return true;
-        }
+        if (dy == 1 && x2 - x1 == dir && board[x2][y2] != '.')
+            return true;
         return false;
     }
     case 'R':
@@ -105,74 +109,68 @@ bool isValidMove(int x1, int y1, int x2, int y2)
         return (x1 == x2 || y1 == y2) && isPathClear(x1, y1, x2, y2);
     case 'N':
     case 'n':
-    {
-        int dx = x1 - x2;
-        int dy = y1 - y2;
-        return (dx * dx + dy * dy == 5);
-    }
+        return (dx == 2 && dy == 1) || (dx == 1 && dy == 2);
     case 'B':
     case 'b':
-    {
-        int dx = x1 - x2;
-        int dy = y1 - y2;
-        return (dx * dx == dy * dy) && isPathClear(x1, y1, x2, y2);
-    }
+        return (dx == dy) && isPathClear(x1, y1, x2, y2);
     case 'Q':
     case 'q':
-    {
-        int dx = x1 - x2;
-        int dy = y1 - y2;
-        return (x1 == x2 || y1 == y2 || dx * dx == dy * dy) && isPathClear(x1, y1, x2, y2);
-    }
+        return (x1 == x2 || y1 == y2 || dx == dy) && isPathClear(x1, y1, x2, y2);
     case 'K':
     case 'k':
-    {
-        int dx = x1 - x2;
-        int dy = y1 - y2;
-        return (dx * dx <= 1 && dy * dy <= 1);
-    }
+        return dx <= 1 && dy <= 1;
     }
     return false;
 }
 
-bool isKingCaptured()
+bool isKingInCheck(bool isWhite)
 {
-    bool whiteKing = false, blackKing = false;
+    char king;
+    if (isWhite)
+        king = 'K';
+    else
+        king = 'k';
+
+    int kingX, kingY;
     for (int i = 0; i < BOARD_SIZE; i++)
     {
         for (int j = 0; j < BOARD_SIZE; j++)
         {
-            if (board[i][j] == 'K')
-                whiteKing = true;
-            if (board[i][j] == 'k')
-                blackKing = true;
+            if (board[i][j] == king)
+            {
+                kingX = i;
+                kingY = j;
+            }
         }
     }
-    if (!whiteKing)
+    for (int i = 0; i < BOARD_SIZE; i++)
     {
-        std::cout << "Black wins!" << std::endl;
-        return true;
-    }
-    if (!blackKing)
-    {
-        std::cout << "White wins!" << std::endl;
-        return true;
+        for (int j = 0; j < BOARD_SIZE; j++)
+        {
+            if (board[i][j] != '.' && isValidMove(i, j, kingX, kingY))
+            {
+                return true;
+            }
+        }
     }
     return false;
 }
 
 void movePiece(int x1, int y1, int x2, int y2)
 {
-    if (isValidMove(x1, y1, x2, y2))
+    char piece = board[x1][y1];
+    char captured = board[x2][y2];
+    board[x2][y2] = piece;
+    board[x1][y1] = '.';
+
+    if (isKingInCheck(whiteTurn))
     {
-        board[x2][y2] = board[x1][y1];
-        board[x1][y1] = '.';
-        whiteTurn = !whiteTurn;
+        std::cout << "Invalid move! King is in check." << std::endl;
+        board[x1][y1] = piece;
+        board[x2][y2] = captured;
+        return;
     }
-    else
-    {
-        std::cout << "Invalid move. Try again." << std::endl;
-    }
+    whiteTurn = !whiteTurn;
 }
 
 void parseAlgebraicMove(std::string move)
@@ -186,12 +184,15 @@ void parseAlgebraicMove(std::string move)
     int x1 = 8 - (move[1] - '0');
     int y2 = move[2] - 'a';
     int x2 = 8 - (move[3] - '0');
-    movePiece(x1, y1, x2, y2);
-}
 
-void checkmate()
- {
-
+    if (isValidMove(x1, y1, x2, y2))
+    {
+        movePiece(x1, y1, x2, y2);
+    }
+    else
+    {
+        std::cout << "Invalid move. Try again." << std::endl;
+    }
 }
 
 int main()
@@ -200,12 +201,7 @@ int main()
     while (true)
     {
         printBoard();
-        if (isKingCaptured())
-            break;
-        std::cout << "White's";
-        if (!whiteTurn)
-            std::cout << "Black's";
-        std::cout << " turn. Enter move (e.g., e2e4), or 'exit' to quit: ";
+        std::cout << (whiteTurn ? "White" : "Black") << "'s turn. Enter move: ";
         std::string move;
         std::cin >> move;
         if (move == "exit")
