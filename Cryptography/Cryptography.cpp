@@ -1,5 +1,6 @@
 #include <iostream>
 #include <algorithm>
+#include <cmath>
 
 int main()
 {
@@ -11,29 +12,36 @@ int main()
       std::cin >> shift;
       std::cin.ignore();
       std::string encrypteddata = "";
-      for (int i = 0; i < str.length(); i++)
+      for (int place = 0; place < str.length(); place++)
       {
-            if (isupper(str[i]))
+            if (isupper(str[place]))
             {
-                  encrypteddata += char(int(str[i] - 'A' + shift) % 10 + 48);
+                  encrypteddata += char(int(str[place] - 'A' + shift) % 10 + 48);
             }
-            else if (islower(str[i]))
+            else if (islower(str[place]))
             {
-                  encrypteddata += char(int(str[i] - 'a' + shift) % 26 + 65);
+                  encrypteddata += char(int(str[place] - 'a' + shift) % 26 + 65);
             }
-            else if (isdigit(str[i]))
+            else if (isdigit(str[place]))
             {
-                  encrypteddata += char(int(str[i] - '0' + shift) % 26 + 97);
+                  encrypteddata += char(int(str[place] - '0' + shift) % 26 + 97);
+            }
+            else if (isspace(str[place]))
+            {
+                  encrypteddata += 'n';
             }
             else
             {
-                  encrypteddata += str[i];
+                  encrypteddata += str[place];
             }
       }
-      std::string key;
-      std::cout << "Enter key : ";
-      std::getline(std::cin, key);
-      if (key == "1234")
+      std::string encryptkey ;
+      std::cout << "Enter key to encrypt data: ";
+      std::getline(std::cin, encryptkey);
+      std::string decryptkey ;
+      std::cout<<"Enter key to decrypt data : ";
+      std::getline(std::cin , decryptkey);
+      if (encryptkey == decryptkey)
       {
             std::cout << "Decrypted data : " << str << "\n";
       }
