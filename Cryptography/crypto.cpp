@@ -1,66 +1,59 @@
 #include <sodium.h>
 #include <iostream>
-#include <iomanip>
-#include <cstring>
 #include <string>
-#include <vector>
+#include <cstdlib>
+#include <ctime>
+
+// Function to generate a random ASCII string of given length
+std::string random_ascii_string(size_t length) {
+    std::string output;
+    for (size_t i = 0; i < length; ++i) {
+        output += static_cast<char>(rand() % 95 + 32); // ASCII printable characters (32-126)
+    }
+    return output;
+}
 
 int main() {
-    // Initialize Libsodium
     if (sodium_init() < 0) {
-        std::cout << "Libsodium initialization failed!" << std::endl;
+        std::cerr << "Init failed!\n";
         return 1;
     }
 
-    // Generate Key Pair 
-    unsigned char public_key[crypto_box_PUBLICKEYBYTES];
-    unsigned char secret_key[crypto_box_SECRETKEYBYTES];
-    crypto_box_keypair(public_key, secret_key);
+    // Generate key pair
+    unsigned char pk[crypto_box_PUBLICKEYBYTES];
+    unsigned char sk[crypto_box_SECRETKEYBYTES];
+    crypto_box_keypair(pk, sk);
 
-    std::cout << "Keys generated successfully!\n";
+    // Get input
+    std::string msg;
+    std::cout << "Enter message: ";
+    std::getline(std::cin, msg);
 
-    // Generate a random nonce
+    // Use random ASCII string for nonce generation (just as an example)
+    std::string nonce_str = random_ascii_string(crypto_box_NONCEBYTES); // Generate random ASCII
     unsigned char nonce[crypto_box_NONCEBYTES];
-    randombytes_buf(nonce, sizeof nonce);
+    std::memcpy(nonce, nonce_str.data(), crypto_box_NONCEBYTES); // Copy to nonce array
 
-    // Get user input message
-    std::string message;
-    std::cout << "Enter the message to encrypt: ";
-    std::getline(std::cin, message);
+    std::string cipher;
+    std::string decrypted;
 
-    // Convert message to unsigned char vector
-    size_t message_len = message.size();
-    std::vector<unsigned char> plaintext(message_len + 1);
-    std::memcpy(plaintext.data(), message.c_str(), message_len + 1);
+    // Resize strings
+    cipher.resize(msg.size() + crypto_box_MACBYTES);
+    decrypted.resize(msg.size());
 
-    // Prepare buffer for encrypted message
-    std::vector<unsigned char> ciphertext(message_len + crypto_box_MACBYTES);
-
-    // Encrypt the message
-    if (crypto_box_easy(ciphertext.data(), plaintext.data(), message_len, nonce, public_key, secret_key) != 0) {
-        std::cout << "Encryption failed!\n";
-        return 1;
+    // Encrypt
+    if (crypto_box_easy((unsigned char*)&cipher[0], (const unsigned char*)msg.data(), msg.size(), nonce, pk, sk) == 0) {
+        // Display encrypted message directly as ASCII characters
+        std::cout << "Encrypted (ASCII): ";
+        for (unsigned char c : cipher) {
+            std::cout << c;
+        }
+        std::cout << "\n";
     }
 
-    // Print Encrypted Message in Hex
-    std::cout << "Encrypted Message: ";
-    for (size_t i = 0; i < message_len + crypto_box_MACBYTES; i++) {
-        std::cout << std::hex << std::setw(2) << std::setfill('0') << (int)ciphertext[i];
+    // Decrypt
+    if (crypto_box_open_easy((unsigned char*)&decrypted[0], (const unsigned char*)&cipher[0], cipher.size(), nonce, pk, sk) == 0) {
+        std::cout << "Decrypted: " << decrypted << "\n";
     }
-    std::cout << std::endl;
-
-    // Decrypt the message
-    std::vector<unsigned char> decrypted(message_len + 1); 
-    if (crypto_box_open_easy(decrypted.data(), ciphertext.data(), message_len + crypto_box_MACBYTES, nonce, public_key, secret_key) != 0) {
-        std::cout << "Decryption failed!\n";
-        return 1;
-    }
-
-    // Ensure string is null-terminated
-    decrypted[message_len] = '\0';
-
-    // Print Decrypted Message
-    std::cout << "Decrypted Message: " << decrypted.data() << std::endl;
-
     return 0;
 }
