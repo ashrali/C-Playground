@@ -1,133 +1,177 @@
 #include <iostream>
-
 using namespace std;
 
-struct Node {
-    int key;
-    Node* left;
-    Node* right;
+struct Node
+{
+    int data;
+    Node *left, *right;
     int height;
+
+    Node(int val)
+    {
+        data = val;
+        left = right = nullptr;
+        height = 1;
+    }
 };
 
-int height(Node* N) {
-    if (N == nullptr)
-        return 0;
-    return N->height;
-}
-
-int balanceFactor(Node* N) {
-    if (N == nullptr)
-        return 0;
-    return height(N->left) - height(N->right);
-}
-
-Node* newNode(int key) {
-    Node* node = new Node();
-    node->key = key;
-    node->left = nullptr;
-    node->right = nullptr;
-    node->height = 1; // new node is initially added at leaf
-    return node;
-}
-
-Node* rightRotate(Node* y) {
-    Node* x = y->left;
-    Node* T2 = x->right;
-
-    // Perform rotation
-    x->right = y;
-    y->left = T2;
-
-    // Update heights
-    y->height = max(height(y->left), height(y->right)) + 1;
-    x->height = max(height(x->left), height(x->right)) + 1;
-
-    // Return new root
-    return x;
-}
-
-Node* leftRotate(Node* x) {
-    Node* y = x->right;
-    Node* T2 = y->left;
-
-    // Perform rotation
-    y->left = x;
-    x->right = T2;
-
-    // Update heights
-    x->height = max(height(x->left), height(x->right)) + 1;
-    y->height = max(height(y->left), height(y->right)) + 1;
-
-    // Return new root
-    return y;
-}
-
-Node* insert(Node* node, int key) {
-    // 1. Perform the normal BST insertion
+int getHeight(Node *node)
+{
     if (node == nullptr)
-        return newNode(key);
+        return 0;
+    else
+        return node->height;
+}
 
-    if (key < node->key)
-        node->left = insert(node->left, key);
-    else if (key > node->key)
-        node->right = insert(node->right, key);
-    else // Duplicate keys are not allowed in the AVL tree
+int getBalance(Node *node)
+{
+    if (node == nullptr)
+        return 0;
+    else
+        return getHeight(node->left) - getHeight(node->right);
+}
+
+int max(int a, int b)
+{
+    if (a > b)
+        return a;
+    else
+        return b;
+}
+
+//LL
+Node *rightRotate(Node *child)
+{
+    Node *parent = child->left;
+    Node *T2 = parent->right;
+
+    parent->right = child;
+    child->left = T2;
+
+    // Update
+    child->height = max(getHeight(child->left), getHeight(child->right)) + 1;
+    parent->height = max(getHeight(parent->left), getHeight(parent->right)) + 1;
+
+    return parent;
+}
+
+//RR
+Node *leftRotate(Node *parent)
+{
+    Node *child = parent->right;
+    Node *T2 = child->left;
+
+    child->left = parent;
+    parent->right = T2;
+
+    // Update
+    parent->height = max(getHeight(parent->left), getHeight(parent->right)) + 1;
+    child->height = max(getHeight(child->left), getHeight(child->right)) + 1;
+
+    return child;
+}
+
+// Insert and Balance 
+Node *insert(Node *node, int data)
+{
+    if (node == nullptr)
+        return new Node(data);
+
+    if (data < node->data)
+        node->left = insert(node->left, data);
+    else if (data > node->data)
+        node->right = insert(node->right, data);
+    else 
         return node;
 
-    // 2. Update height of this ancestor node
-    node->height = 1 + max(height(node->left), height(node->right)) + 1;
+    // Update height
+    node->height = 1 + max(getHeight(node->left), getHeight(node->right));
 
-    // 3. Get the balance factor of this ancestor node to check whether this node became unbalanced
-    int balance = balanceFactor(node);
+    //balance factor
+    int balance = getBalance(node);
 
-    // If this node becomes unbalanced, then there are 4 cases
-
-    // Left Left Case
-    if (balance > 1 && key < node->left->key)
+    // Left Left
+    if (balance > 1 && data < node->left->data)
         return rightRotate(node);
 
-    // Right Right Case
-    if (balance < -1 && key > node->right->key)
+    // Right Right
+    if (balance < -1 && data > node->right->data)
         return leftRotate(node);
 
-    // Left Right Case
-    if (balance > 1 && key > node->left->key) {
+    // Left Right
+    if (balance > 1 && data > node->left->data)
+    {
         node->left = leftRotate(node->left);
         return rightRotate(node);
     }
 
-    // Right Left Case
-    if (balance < -1 && key < node->right->key) {
+    // Right Left
+    if (balance < -1 && data < node->right->data)
+    {
         node->right = rightRotate(node->right);
         return leftRotate(node);
     }
 
-    // return the (unchanged) node pointer
     return node;
 }
 
-void preOrder(Node* root) {
-    if (root != nullptr) {
-        cout << root->key << " ";
-        preOrder(root->left);
-        preOrder(root->right);
-    }
+void display(Node *node)
+{
+    if (node == nullptr)
+        return;
+
+    cout << "Node: " << node->data << "\n";
+    if (node->left)
+        cout << "  Left child: " << node->left->data << "\n";
+    else
+        cout << "  Left child: NULL\n";
+    if (node->right)
+        cout << "  Right child: " << node->right->data << "\n\n";
+    else
+        cout << "  Right child: NULL\n\n";
+
+    display(node->left);
+    display(node->right);
 }
 
-int main() {
-    Node* root = nullptr;
+int main()
+{
+    Node *root = nullptr;
+    int choice;
 
-    // Insert nodes into the AVL tree
-    root = insert(root, 10);
-    root = insert(root, 20);
-    root = insert(root, 30);
-    root = insert(root, 40);
-    root = insert(root, 50);
-    root = insert(root, 25);
+    while (true)
+    {
+        cout << "\nMenu:\n";
+        cout << "1. Insert node\n";
+        cout << "2. Display tree\n";
+        cout << "3. Exit\n";
+        cout << "Enter your choice: ";
+        cin >> choice;
 
-    // Preorder traversal of the constructed AVL tree
-    cout << "Preorder traversal of the constructed AVL tree is: ";
-    preOrder(root);
+        if (choice == 1)
+        {
+            int data;
+            cout << "Enter data to insert: ";
+            cin >> data;
+            root = insert(root, data);
+        }
+        else if (choice == 2)
+        {
+            if (!root)
+                cout << "Tree is empty.\n";
+            else
+                display(root);
+        }
+        else if (choice == 3)
+        {
+            cout << "Exiting the program.\n";
+            break;
+        }
+        else
+        {
+            cout << "Invalid choice. Try again.\n";
+        }
+    }
 
     return 0;
 }
