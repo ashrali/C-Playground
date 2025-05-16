@@ -15,29 +15,11 @@ struct Node
     }
 };
 
-int getHeight(Node *node)
-{
-    if (node == nullptr)
-        return 0;
-    else
-        return node->height;
-}
+int getHeight(Node *node) { retrun (node == nullptr) ?  0 : node->height; }
 
-int getBalance(Node *node)
-{
-    if (node == nullptr)
-        return 0;
-    else
-        return getHeight(node->left) - getHeight(node->right);
-}
+int getBalance(Node *node) { return (node == nullptr) ? 0 : getHeight(node->left) - getHeight(node->right); }
 
-int max(int a, int b)
-{
-    if (a > b)
-        return a;
-    else
-        return b;
-}
+int max(int a, int b) { return (a > b) ? a : b; }
 
 //LL
 Node *rightRotate(Node *child)
